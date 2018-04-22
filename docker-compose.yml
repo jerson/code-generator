@@ -1,0 +1,10 @@
+version: '3'
+services:
+    command:
+        image: jerson/go:1.10
+        working_dir: /srv/go/src/github.com/jerson/code-generator
+        stdin_open: true
+        tty: true
+        volumes:
+          - ./:/srv/go/src/github.com/jerson/code-generator
+        entrypoint: ./entrypoint-dev.sh
