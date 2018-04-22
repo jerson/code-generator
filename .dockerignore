@@ -1,5 +1,5 @@
 .idea
-crud-generator
+code-generator
 vendor/
 config.toml
 *.pprof
