@@ -1,0 +1,10 @@
+.idea
+crud-generator
+vendor/
+*.pprof
+*.memprof
+*.tmp
+*.bak
+*.tar.gz
+*.log
+*.pid
