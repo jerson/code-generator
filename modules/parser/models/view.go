@@ -1,4 +1,4 @@
-package platform
+package models
 
 // View ...
 type View struct {

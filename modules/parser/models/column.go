@@ -1,4 +1,4 @@
-package platform
+package models
 
 // Column ...
 type Column struct {

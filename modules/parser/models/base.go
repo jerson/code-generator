@@ -1,4 +1,4 @@
-package platform
+package models
 
 // Base ...
 type Base struct {

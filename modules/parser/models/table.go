@@ -1,4 +1,4 @@
-package platform
+package models
 
 // Table ...
 type Table struct {

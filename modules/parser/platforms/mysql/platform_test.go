@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestMySQL_Columns(t *testing.T) {
+func TestNewPlatform(t *testing.T) {
 	ctx := context.NewSingle("test")
 	defer ctx.Close()
 

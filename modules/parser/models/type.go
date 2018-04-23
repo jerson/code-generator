@@ -1,4 +1,4 @@
-package platform
+package models
 
 import "github.com/jerson/code-generator/modules/platform/types"
 

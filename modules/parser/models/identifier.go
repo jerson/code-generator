@@ -1,4 +1,4 @@
-package platform
+package models
 
 // Identifier ...
 type Identifier struct {

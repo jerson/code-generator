@@ -1,4 +1,4 @@
-package platform
+package models
 
 // SchemaConfig ...
 type SchemaConfig struct {
@@ -8,6 +8,7 @@ type SchemaConfig struct {
 	DefaultTableOptions          map[string]string
 }
 
+//NewSchemaConfig ...
 func NewSchemaConfig() SchemaConfig {
 	return SchemaConfig{MaxIdentifierLength: 63}
 }
