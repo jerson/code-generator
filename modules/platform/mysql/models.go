@@ -1,13 +1,4 @@
-// Package parser ...
-package parser
-
-import ()
-
-// TableInterface ...
-type TableInterface interface {
-	// GetName ...
-	GetName() string
-}
+package mysql
 
 // Column ...
 type Column struct {

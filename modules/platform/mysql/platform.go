@@ -1,4 +1,4 @@
-package parser
+package mysql
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ type MySQL struct {
 	cn  *gorm.DB
 }
 
-// NewMySQL ...
-func NewMySQL(ctx context.Base, driver, source string) (*MySQL, error) {
+// NewPlatform ...
+func NewPlatform(ctx context.Base, driver, source string) (*MySQL, error) {
 	cn, err := db.Setup(ctx, driver, source)
 	if err != nil {
 		return nil, err
