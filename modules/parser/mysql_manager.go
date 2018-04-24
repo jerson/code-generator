@@ -4,6 +4,7 @@ import (
 	"github.com/jerson/code-generator/modules/context"
 	"github.com/jerson/code-generator/modules/parser/models"
 	"github.com/jerson/code-generator/modules/parser/platforms/mysql"
+	"strings"
 )
 
 // MySQLManager ...
@@ -18,6 +19,30 @@ func NewMySQLManager(ctx context.Base, driver, source string) (*MySQLManager, er
 		return nil, err
 	}
 	return &MySQLManager{platform: platform}, nil
+}
+
+//Schema ...
+func (m MySQLManager) Schema() (*models.Schema, error) {
+	database, err := m.Database()
+	if err != nil {
+		return nil, err
+	}
+	views, err := m.Views()
+	if err != nil {
+		return nil, err
+	}
+	tables, err := m.Tables()
+	if err != nil {
+		return nil, err
+	}
+	return &models.Schema{
+		Base:       models.Base{Name: database},
+		Config:     models.SchemaConfig{},
+		Views:      views,
+		Tables:     tables,
+		Secuence:   []models.Secuence{},
+		Namespaces: []string{},
+	}, nil
 }
 
 //Database ...
@@ -67,6 +92,38 @@ func (m MySQLManager) Views() ([]models.View, error) {
 		items = append(items, models.View{
 			Base: models.Base{Name: result.TableName},
 			SQL:  result.ViewDefinition,
+		})
+	}
+
+	return items, nil
+}
+
+//Columns ...
+func (m MySQLManager) Columns(table string) ([]models.Column, error) {
+
+	results, err := m.platform.Columns(table, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var items []models.Column
+	for _, result := range results {
+		items = append(items, models.Column{
+			Base:          models.Base{Name: result.Field},
+			Type:          models.Type{},
+			Length:        0,
+			Precision:     0,
+			Scale:         0,
+			Fixed:         false,
+			Unsigned:      strings.Contains(result.Type, "unsigned"),
+			NotNull:       result.Null != "YES",
+			Default:       &result.Default,
+			AutoIncrement: strings.Contains(result.Extra, "auto_increment"),
+			PlatformOptions: models.PlatformOptions{
+				Collation:    result.Collation,
+				CharacterSet: result.CharacterSet,
+			},
+			Comment: result.Comment,
 		})
 	}
 

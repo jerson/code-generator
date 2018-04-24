@@ -7,5 +7,5 @@ type Schema struct {
 	Views      []View
 	Tables     []Table
 	Secuence   []Secuence
-	Namespaces map[string]string
+	Namespaces []string
 }

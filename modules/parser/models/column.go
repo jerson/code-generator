@@ -12,7 +12,13 @@ type Column struct {
 	NotNull         bool
 	Default         *string
 	AutoIncrement   bool
-	PlatformOptions map[string]string
+	PlatformOptions PlatformOptions
 	Comment         string
 	SchemaOptions   map[string]string
+}
+
+// PlatformOptions ...
+type PlatformOptions struct {
+	Collation    string
+	CharacterSet string
 }
