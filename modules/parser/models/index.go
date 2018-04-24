@@ -6,6 +6,6 @@ type Index struct {
 	Columns   []Identifier
 	IsUnique  bool
 	IsPrimary bool
-	Flags     map[string]string
+	Flags     []string
 	Options   map[string]string
 }

@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"encoding/json"
 	"github.com/jerson/code-generator/modules/context"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"testing"
@@ -10,7 +11,7 @@ func TestNewPlatform(t *testing.T) {
 	ctx := context.NewSingle("test")
 	defer ctx.Close()
 
-	parser, err := NewPlatform(ctx, "mysql", "root:@/movies")
+	parser, err := NewPlatform(ctx, "mysql", "root:123456@/movie_app")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,54 +20,64 @@ func TestNewPlatform(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(database)
 
-	columns, err := parser.Columns("media_link_watch", database)
+	data, _ := json.MarshalIndent(database, "", " ")
+	t.Log(string(data))
+
+	columns, err := parser.Columns("movie_link", database)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(columns)
+	data, _ = json.MarshalIndent(columns, "", " ")
+	t.Log(string(data))
 
-	columns2, err := parser.Columns("media_link_watch", "")
+	columns2, err := parser.Columns("movie_link", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(columns2)
+	data, _ = json.MarshalIndent(columns2, "", " ")
+	t.Log(string(data))
 
-	indexes2, err := parser.Indexes("media_link_watch", database)
+	indexes2, err := parser.Indexes("movie_link", database)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(indexes2)
+	data, _ = json.MarshalIndent(indexes2, "", " ")
+	t.Log(string(data))
 
-	indexes, err := parser.Indexes("media_link_watch", "")
+	indexes, err := parser.Indexes("movie_link", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(indexes)
+	data, _ = json.MarshalIndent(indexes, "", " ")
+	t.Log(string(data))
 
-	foreignKeys, err := parser.ForeignKeys("media_link_watch", database)
+	foreignKeys, err := parser.ForeignKeys("movie_link", database)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(foreignKeys)
+	data, _ = json.MarshalIndent(foreignKeys, "", " ")
+	t.Log(string(data))
 
-	foreignKeys2, err := parser.ForeignKeys("media_link_watch", "")
+	foreignKeys2, err := parser.ForeignKeys("movie_link", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(foreignKeys2)
+	data, _ = json.MarshalIndent(foreignKeys2, "", " ")
+	t.Log(string(data))
 
 	views, err := parser.Views(database)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(views)
+	data, _ = json.MarshalIndent(views, "", " ")
+	t.Log(string(data))
 
 	tables, err := parser.Tables()
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(tables)
+	data, _ = json.MarshalIndent(tables, "", " ")
+	t.Log(string(data))
 
 }

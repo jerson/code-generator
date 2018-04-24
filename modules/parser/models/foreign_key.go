@@ -3,10 +3,15 @@ package models
 // ForeignKey ...
 type ForeignKey struct {
 	Base
-	LocalTable             string
-	LocalColumnName        string
-	ForeignTableName       *Table
-	ForeignTableIdentifier *Identifier
-	ForeignColumnNames     []Identifier
-	Options                map[string]string
+	LocalTable         string
+	LocalColumnName    []Identifier
+	ForeignTableName   Identifier
+	ForeignColumnNames []Identifier
+	Options            ForeignKeyOptions
+}
+
+// ForeignKeyOptions ...
+type ForeignKeyOptions struct {
+	OnUpdate string
+	OnDelete string
 }
