@@ -20,6 +20,40 @@ func NewMySQLManager(ctx context.Base, driver, source string) (*MySQLManager, er
 	return &MySQLManager{platform: platform}, nil
 }
 
+//Database ...
+func (m MySQLManager) Database() (string, error) {
+	return m.platform.Database()
+}
+
+//Tables ...
+func (m MySQLManager) Tables() ([]models.Table, error) {
+	results, err := m.platform.Tables()
+	if err != nil {
+		return nil, err
+	}
+
+	var items []models.Table
+	for _, result := range results {
+
+		indexes, err := m.Indexes(result.Name)
+		if err != nil {
+			return nil, err
+		}
+		foreignKeys, err := m.ForeignKeys(result.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, models.Table{
+			Base:       models.Base{Name: result.Name},
+			Indexes:    indexes,
+			ForeignKey: foreignKeys,
+		})
+	}
+
+	return items, nil
+}
+
 //Views ...
 func (m MySQLManager) Views() ([]models.View, error) {
 
