@@ -6,6 +6,6 @@ type Schema struct {
 	Config     SchemaConfig
 	Views      []View
 	Tables     []Table
-	Secuence   []Secuence
+	Sequences  []Sequence
 	Namespaces []string
 }

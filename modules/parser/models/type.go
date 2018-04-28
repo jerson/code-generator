@@ -1,6 +1,6 @@
 package models
 
-import "github.com/jerson/code-generator/modules/platform/types"
+import "github.com/jerson/code-generator/modules/parser/types"
 
 // Type ...
 type Type struct {

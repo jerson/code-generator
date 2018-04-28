@@ -1,7 +1,7 @@
 package models
 
-// Secuence ...
-type Secuence struct {
+// Sequence ...
+type Sequence struct {
 	Base
 	AllocationSize int
 	InitialValue   int

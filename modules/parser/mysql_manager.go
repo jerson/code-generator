@@ -23,7 +23,7 @@ func NewMySQLManager(ctx context.Base, driver, source string) (*MySQLManager, er
 
 //Schema ...
 func (m MySQLManager) Schema() (*models.Schema, error) {
-	database, err := m.Database()
+	base, err := m.Database()
 	if err != nil {
 		return nil, err
 	}
@@ -35,19 +35,52 @@ func (m MySQLManager) Schema() (*models.Schema, error) {
 	if err != nil {
 		return nil, err
 	}
+	sequences, err := m.Sequences()
+	if err != nil {
+		return nil, err
+	}
+	namespaces, err := m.Namespaces()
+	if err != nil {
+		return nil, err
+	}
+	schemaConfig, err := m.SchemaConfig()
+	if err != nil {
+		return nil, err
+	}
 	return &models.Schema{
-		Base:       models.Base{Name: database},
-		Config:     models.SchemaConfig{},
+		Base:       *base,
+		Config:     schemaConfig,
 		Views:      views,
 		Tables:     tables,
-		Secuence:   []models.Secuence{},
-		Namespaces: []string{},
+		Sequences:  sequences,
+		Namespaces: namespaces,
 	}, nil
 }
 
 //Database ...
-func (m MySQLManager) Database() (string, error) {
-	return m.platform.Database()
+func (m MySQLManager) Database() (*models.Base, error) {
+
+	name, err := m.platform.Database()
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.Base{Name: name}, nil
+}
+
+//SchemaConfig ...
+func (m MySQLManager) SchemaConfig() (models.SchemaConfig, error) {
+	return models.SchemaConfig{}, nil
+}
+
+//Sequences ...
+func (m MySQLManager) Sequences() ([]models.Sequence, error) {
+	return []models.Sequence{}, nil
+}
+
+//Namespaces ...
+func (m MySQLManager) Namespaces() ([]string, error) {
+	return []string{}, nil
 }
 
 //Tables ...
