@@ -10,7 +10,7 @@ type Column struct {
 	Unsigned        bool              `json:",omitempty"`
 	Fixed           bool              `json:",omitempty"`
 	NotNull         bool              `json:",omitempty"`
-	Default         *string           `json:",omitempty"`
+	Default         string            `json:",omitempty"`
 	AutoIncrement   bool              `json:",omitempty"`
 	PlatformOptions PlatformOptions   `json:",omitempty"`
 	Comment         string            `json:",omitempty"`

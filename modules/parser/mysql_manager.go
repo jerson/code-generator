@@ -49,7 +49,7 @@ func (m MySQLManager) Schema() (*models.Schema, error) {
 	}
 	return &models.Schema{
 		Base:       *base,
-		Config:     schemaConfig,
+		Config:     *schemaConfig,
 		Views:      views,
 		Tables:     tables,
 		Sequences:  sequences,
@@ -67,8 +67,8 @@ func (m MySQLManager) Database() (*models.Base, error) {
 }
 
 //SchemaConfig ...
-func (m MySQLManager) SchemaConfig() (models.SchemaConfig, error) {
-	return models.SchemaConfig{}, nil
+func (m MySQLManager) SchemaConfig() (*models.SchemaConfig, error) {
+	return &models.SchemaConfig{}, nil
 }
 
 //Sequences ...
@@ -99,9 +99,14 @@ func (m MySQLManager) Tables() ([]models.Table, error) {
 		if err != nil {
 			return nil, err
 		}
+		columns, err := m.Columns(result.Name)
+		if err != nil {
+			return nil, err
+		}
 
 		items = append(items, models.Table{
 			Base:       models.Base{Name: result.Name},
+			Columns:    columns,
 			Indexes:    indexes,
 			ForeignKey: foreignKeys,
 		})
@@ -148,7 +153,7 @@ func (m MySQLManager) Columns(table string) ([]models.Column, error) {
 			Fixed:         false,
 			Unsigned:      strings.Contains(result.Type, "unsigned"),
 			NotNull:       result.Null != "YES",
-			Default:       &result.Default,
+			Default:       result.Default,
 			AutoIncrement: strings.Contains(result.Extra, "auto_increment"),
 			PlatformOptions: models.PlatformOptions{
 				Collation:    result.Collation,
