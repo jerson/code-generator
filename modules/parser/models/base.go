@@ -2,7 +2,7 @@ package models
 
 // Base ...
 type Base struct {
-	Name      string
-	Namespace string
-	Quoted    bool
+	Name      string `json:",omitempty"`
+	Namespace string `json:",omitempty"`
+	//Quoted    bool `json:",omitempty"`
 }

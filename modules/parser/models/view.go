@@ -3,5 +3,5 @@ package models
 // View ...
 type View struct {
 	Base
-	SQL string
+	SQL string `json:",omitempty"`
 }

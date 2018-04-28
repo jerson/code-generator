@@ -3,15 +3,15 @@ package models
 // ForeignKey ...
 type ForeignKey struct {
 	Base
-	LocalTable         string
-	LocalColumnName    []Identifier
-	ForeignTableName   Identifier
-	ForeignColumnNames []Identifier
-	Options            ForeignKeyOptions
+	LocalTable         string            `json:",omitempty"`
+	LocalColumnName    []Identifier      `json:",omitempty"`
+	ForeignTableName   Identifier        `json:",omitempty"`
+	ForeignColumnNames []Identifier      `json:",omitempty"`
+	Options            ForeignKeyOptions `json:",omitempty"`
 }
 
 // ForeignKeyOptions ...
 type ForeignKeyOptions struct {
-	OnUpdate string
-	OnDelete string
+	OnUpdate string `json:",omitempty"`
+	OnDelete string `json:",omitempty"`
 }

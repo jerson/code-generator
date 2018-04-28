@@ -59,12 +59,10 @@ func (m MySQLManager) Schema() (*models.Schema, error) {
 
 //Database ...
 func (m MySQLManager) Database() (*models.Base, error) {
-
 	name, err := m.platform.Database()
 	if err != nil {
 		return nil, err
 	}
-
 	return &models.Base{Name: name}, nil
 }
 
@@ -182,9 +180,14 @@ func (m MySQLManager) Indexes(table string) ([]models.Index, error) {
 			flags = append(flags, "SPATIAL")
 		}
 
+		var columns []models.Identifier
+		identifier := models.Identifier{Base: models.Base{Name: result.ColumnName}}
+		columns = append(columns, identifier)
+
 		items = append(items, models.Index{
 			Base:      models.Base{Name: result.KeyName},
-			IsUnique:  result.NonUnique == "NO",
+			Columns:   columns,
+			IsUnique:  result.NonUnique == "0",
 			IsPrimary: result.KeyName == "PRIMARY",
 			Flags:     flags,
 		})

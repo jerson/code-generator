@@ -3,9 +3,9 @@ package models
 // Schema ...
 type Schema struct {
 	Base
-	Config     SchemaConfig
-	Views      []View
-	Tables     []Table
-	Sequences  []Sequence
-	Namespaces []string
+	Config     SchemaConfig `json:",omitempty"`
+	Views      []View       `json:",omitempty"`
+	Tables     []Table      `json:",omitempty"`
+	Sequences  []Sequence   `json:",omitempty"`
+	Namespaces []string     `json:",omitempty"`
 }
