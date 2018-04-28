@@ -7,3 +7,8 @@ type Type struct {
 	Base
 	Value types.Value `json:",omitempty"`
 }
+
+//NewType ...
+func NewType() Type {
+	return Type{}
+}

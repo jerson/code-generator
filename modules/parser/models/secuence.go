@@ -7,3 +7,8 @@ type Sequence struct {
 	InitialValue   int  `json:",omitempty"`
 	Cache          *int `json:",omitempty"`
 }
+
+//NewSequence ...
+func NewSequence() Sequence {
+	return Sequence{}
+}

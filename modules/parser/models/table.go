@@ -11,3 +11,8 @@ type Table struct {
 	Options    map[string]string `json:",omitempty"`
 	Config     SchemaConfig      `json:",omitempty"`
 }
+
+//NewTable ...
+func NewTable() Table {
+	return Table{}
+}

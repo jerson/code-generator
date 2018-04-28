@@ -6,3 +6,8 @@ type Base struct {
 	Namespace string `json:",omitempty"`
 	//Quoted    bool `json:",omitempty"`
 }
+
+//NewBase ...
+func NewBase() Base {
+	return Base{}
+}

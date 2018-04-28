@@ -9,3 +9,8 @@ type Schema struct {
 	Sequences  []Sequence   `json:",omitempty"`
 	Namespaces []string     `json:",omitempty"`
 }
+
+//NewSchema ...
+func NewSchema() Schema {
+	return Schema{}
+}

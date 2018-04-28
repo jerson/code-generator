@@ -4,3 +4,8 @@ package models
 type Identifier struct {
 	Base
 }
+
+//NewIdentifier ...
+func NewIdentifier() Identifier {
+	return Identifier{}
+}

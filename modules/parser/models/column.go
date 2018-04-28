@@ -22,3 +22,13 @@ type PlatformOptions struct {
 	Collation    string `json:",omitempty"`
 	CharacterSet string `json:",omitempty"`
 }
+
+//NewColumn ...
+func NewColumn() Column {
+	return Column{}
+}
+
+//NewPlatformOptions ...
+func NewPlatformOptions() PlatformOptions {
+	return PlatformOptions{}
+}

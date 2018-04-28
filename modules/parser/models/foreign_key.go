@@ -15,3 +15,13 @@ type ForeignKeyOptions struct {
 	OnUpdate string `json:",omitempty"`
 	OnDelete string `json:",omitempty"`
 }
+
+//NewForeignKey ...
+func NewForeignKey() ForeignKey {
+	return ForeignKey{}
+}
+
+//NewForeignKeyOptions ...
+func NewForeignKeyOptions() ForeignKeyOptions {
+	return ForeignKeyOptions{}
+}

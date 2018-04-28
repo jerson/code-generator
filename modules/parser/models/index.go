@@ -9,3 +9,8 @@ type Index struct {
 	Flags     []string     `json:",omitempty"`
 	//Options   map[string]string
 }
+
+//NewIndex ...
+func NewIndex() Index {
+	return Index{}
+}
