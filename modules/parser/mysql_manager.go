@@ -4,12 +4,18 @@ import (
 	"github.com/jerson/code-generator/modules/context"
 	"github.com/jerson/code-generator/modules/parser/models"
 	"github.com/jerson/code-generator/modules/parser/platforms/mysql"
+	"github.com/jerson/code-generator/modules/parser/types"
+	"github.com/jerson/code-generator/modules/util"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
 // MySQLManager ...
 type MySQLManager struct {
-	platform *mysql.Platform
+	platform         *mysql.Platform
+	regexType        *regexp.Regexp
+	regexSpecialType *regexp.Regexp
 }
 
 // NewMySQLManager ...
@@ -18,7 +24,10 @@ func NewMySQLManager(ctx context.Base, driver, source string) (*MySQLManager, er
 	if err != nil {
 		return nil, err
 	}
-	return &MySQLManager{platform: platform}, nil
+
+	regexType := regexp.MustCompile("^(?P<type>[A-Za-z0-9]+)(?P<length>\\([0-9A-Za-z\\'\\'\\,]+\\))?$")
+	regexSpecialType := regexp.MustCompile("^(?P<type>[A-Za-z0-9]+)(?P<length>\\([0-9A-Za-z\\'\\'\\,]+\\))?$")
+	return &MySQLManager{platform: platform, regexType: regexType, regexSpecialType: regexSpecialType}, nil
 }
 
 //Schema ...
@@ -144,13 +153,24 @@ func (m MySQLManager) Columns(table string) ([]models.Column, error) {
 
 	var items []models.Column
 	for _, result := range results {
+
+		columnType, err := m.parseType(result.Type)
+		if err != nil {
+			return nil, err
+		}
+		columnSpecialTYpe, err := m.parseSpecialType(result.Comment)
+		if err != nil {
+			return nil, err
+		}
+
 		items = append(items, models.Column{
 			Base:          models.Base{Name: result.Field},
-			Type:          models.Type{},
-			Length:        0,
-			Precision:     0,
-			Scale:         0,
-			Fixed:         false,
+			SpecialType:   columnSpecialTYpe,
+			Type:          columnType.Value,
+			Length:        columnType.Length,
+			Precision:     columnType.Precision,
+			Scale:         columnType.Scale,
+			Fixed:         columnType.Fixed,
 			Unsigned:      strings.Contains(result.Type, "unsigned"),
 			NotNull:       result.Null != "YES",
 			Default:       result.Default,
@@ -164,6 +184,110 @@ func (m MySQLManager) Columns(table string) ([]models.Column, error) {
 	}
 
 	return items, nil
+}
+
+//parseType ...
+func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
+
+	results := util.GetRegexParams(m.regexType, typeData)
+
+	columnType := &models.Type{}
+	columnType.Name = typeData
+
+	typeString := results["type"]
+	lengthString := strings.Trim(strings.Trim(results["length"], ")"), "(")
+	if lengthString != "" {
+		length, err := strconv.Atoi(lengthString)
+		if err != nil {
+			return nil, err
+		}
+		columnType.Length = length
+	}
+
+	value := types.String
+	switch strings.ToLower(typeString) {
+	case "tinyint":
+		if columnType.Length == 1 {
+			value = types.Boolean
+		} else {
+			value = types.SmallInt
+		}
+		break
+	case "bigint":
+		value = types.BigInt
+		break
+	case "int":
+		value = types.Integer
+		break
+	case "char":
+		columnType.Fixed = true
+		value = types.String
+		break
+	case "double":
+	case "float":
+	case "real":
+		value = types.Float
+		break
+	case "text":
+		value = types.Text
+		break
+	case "bool":
+		value = types.Boolean
+		break
+	case "date":
+		value = types.Date
+		break
+	case "datetime":
+		value = types.Datetime
+		break
+	case "time":
+		value = types.Time
+		break
+	case "timestamp":
+		value = types.Datetime
+		break
+	default:
+		value = types.Unknown
+		break
+	}
+	columnType.Value = value
+
+	return columnType, nil
+}
+
+//parseSpecialType ...
+func (m MySQLManager) parseSpecialType(comment string) (*models.Type, error) {
+
+	results := util.GetRegexParams(m.regexSpecialType, comment)
+
+	columnType := &models.Type{}
+
+	typeString := results["type"]
+	lengthString := strings.Trim(strings.Trim(results["length"], ")"), "(")
+	if lengthString != "" {
+		length, err := strconv.Atoi(lengthString)
+		if err != nil {
+			return nil, err
+		}
+		columnType.Length = length
+	}
+
+	value := types.String
+	switch strings.ToLower(typeString) {
+	case "tinyint":
+		if columnType.Length == 1 {
+			value = types.Boolean
+		} else {
+			value = types.SmallInt
+		}
+		break
+	default:
+		value = types.Unknown
+		break
+	}
+	columnType.Value = value
+
+	return columnType, nil
 }
 
 //Indexes ...

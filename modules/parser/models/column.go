@@ -1,9 +1,12 @@
 package models
 
+import "github.com/jerson/code-generator/modules/parser/types"
+
 // Column ...
 type Column struct {
 	Base
-	Type            Type              `json:",omitempty"`
+	SpecialType     *Type             `json:",omitempty"`
+	Type            types.Value       `json:",omitempty"`
 	Length          int               `json:",omitempty"`
 	Precision       int               `json:",omitempty"`
 	Scale           int               `json:",omitempty"`
