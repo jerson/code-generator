@@ -1,9 +1,10 @@
 package parser
 
 import (
-	"encoding/json"
+	"github.com/BurntSushi/toml"
 	"github.com/jerson/code-generator/modules/context"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"os"
 	"testing"
 )
 
@@ -21,7 +22,8 @@ func TestNewMySQLManager(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, _ := json.MarshalIndent(schema, "", " ")
-	t.Log(string(data))
+	toml.NewEncoder(os.Stdout).Encode(schema)
+	//data, _ := json.MarshalIndent(schema, "", " ")
+	//t.Log(string(data))
 
 }

@@ -242,6 +242,10 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 		columnType.Fixed = true
 		value = types.String
 		break
+	case "blob":
+		columnType.Fixed = true
+		value = types.Blob
+		break
 	case "double":
 	case "float":
 	case "real":
