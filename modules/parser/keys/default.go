@@ -1,0 +1,13 @@
+package keys
+
+//Value ...
+type Value string
+
+const (
+	//Multiple ...
+	Multiple Value = "Multiple"
+	//Primary ...
+	Primary Value = "Primary"
+	//Unknown ...
+	Unknown Value = ""
+)
