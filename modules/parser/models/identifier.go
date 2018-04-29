@@ -2,7 +2,8 @@ package models
 
 // Identifier ...
 type Identifier struct {
-	Base
+	Name      string `yaml:",omitempty"`
+	Namespace string `yaml:",omitempty"`
 }
 
 //NewIdentifier ...

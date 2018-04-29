@@ -60,7 +60,7 @@ func (m MySQLManager) Schema() (*models.Schema, error) {
 		return nil, err
 	}
 	return &models.Schema{
-		Base:       *base,
+		Name:       base,
 		Config:     *schemaConfig,
 		Views:      views,
 		Tables:     tables,
@@ -70,12 +70,12 @@ func (m MySQLManager) Schema() (*models.Schema, error) {
 }
 
 //Database ...
-func (m MySQLManager) Database() (*models.Base, error) {
+func (m MySQLManager) Database() (string, error) {
 	name, err := m.platform.Database()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return &models.Base{Name: name}, nil
+	return name, nil
 }
 
 //SchemaConfig ...
@@ -117,7 +117,7 @@ func (m MySQLManager) Tables() ([]models.Table, error) {
 		}
 
 		items = append(items, models.Table{
-			Base:       models.Base{Name: result.Name},
+			Name:       result.Name,
 			Columns:    columns,
 			Indexes:    indexes,
 			ForeignKey: foreignKeys,
@@ -138,7 +138,7 @@ func (m MySQLManager) Views() ([]models.View, error) {
 	var items []models.View
 	for _, result := range results {
 		items = append(items, models.View{
-			Base: models.Base{Name: result.TableName},
+			Name: result.TableName,
 			SQL:  result.ViewDefinition,
 		})
 	}
@@ -178,7 +178,7 @@ func (m MySQLManager) Columns(table string) ([]models.Column, error) {
 		}
 
 		items = append(items, models.Column{
-			Base:          models.Base{Name: result.Field},
+			Name:          result.Field,
 			SpecialType:   columnSpecialType,
 			Type:          columnType.Value,
 			Length:        columnType.Length,
@@ -350,13 +350,13 @@ func (m MySQLManager) Indexes(table string) ([]models.Index, error) {
 			}
 
 			list[value.KeyName] = &models.Index{
-				Base:      models.Base{Name: value.KeyName},
+				Name:      value.KeyName,
 				IsUnique:  value.NonUnique == "0",
 				IsPrimary: value.KeyName == "PRIMARY",
 				Flags:     flags,
 			}
 		}
-		list[value.KeyName].Columns = append(list[value.KeyName].Columns, models.Identifier{Base: models.Base{Name: value.ColumnName}})
+		list[value.KeyName].Columns = append(list[value.KeyName].Columns, models.Identifier{Name: value.ColumnName})
 
 	}
 	var items []models.Index
@@ -387,12 +387,12 @@ func (m MySQLManager) ForeignKeys(table string) ([]models.ForeignKey, error) {
 				value.UpdateRule = ""
 			}
 			list[value.ConstraintName] = &models.ForeignKey{
-				Base:               models.Base{Name: value.ConstraintName},
+				Name:               value.ConstraintName,
 				LocalTable:         table,
 				LocalColumnName:    []models.Identifier{},
 				ForeignColumnNames: []models.Identifier{},
 				ForeignTableName: models.Identifier{
-					Base: models.Base{Name: value.ReferencedTableName},
+					Name: value.ReferencedTableName,
 				},
 				Options: models.ForeignKeyOptions{
 					OnUpdate: value.UpdateRule,
@@ -400,8 +400,8 @@ func (m MySQLManager) ForeignKeys(table string) ([]models.ForeignKey, error) {
 				},
 			}
 		}
-		list[value.ConstraintName].LocalColumnName = append(list[value.ConstraintName].LocalColumnName, models.Identifier{Base: models.Base{Name: value.ColumnName}})
-		list[value.ConstraintName].ForeignColumnNames = append(list[value.ConstraintName].ForeignColumnNames, models.Identifier{Base: models.Base{Name: value.ReferencedColumnName}})
+		list[value.ConstraintName].LocalColumnName = append(list[value.ConstraintName].LocalColumnName, models.Identifier{Name: value.ColumnName})
+		list[value.ConstraintName].ForeignColumnNames = append(list[value.ConstraintName].ForeignColumnNames, models.Identifier{Name: value.ReferencedColumnName})
 
 	}
 

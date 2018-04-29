@@ -4,13 +4,14 @@ import "github.com/jerson/code-generator/modules/parser/types"
 
 // Type ...
 type Type struct {
-	Base
-	Length    int               `json:",omitempty"`
-	Precision int               `json:",omitempty"`
-	Scale     int               `json:",omitempty"`
-	Fixed     bool              `json:",omitempty"`
-	Value     types.Value       `json:",omitempty"`
-	Options   *TypeExtraOptions `json:",omitempty"`
+	Name      string            `yaml:",omitempty"`
+	Namespace string            `yaml:",omitempty"`
+	Length    int               `yaml:",omitempty"`
+	Precision int               `yaml:",omitempty"`
+	Scale     int               `yaml:",omitempty"`
+	Fixed     bool              `yaml:",omitempty"`
+	Value     types.Value       `yaml:",omitempty"`
+	Options   *TypeExtraOptions `yaml:",omitempty"`
 }
 
 //NewType ...
@@ -20,9 +21,9 @@ func NewType() Type {
 
 // TypeExtraOptions ...
 type TypeExtraOptions struct {
-	Length int      `json:",omitempty"`
-	Help   string   `json:",omitempty"`
-	Values []string `json:",omitempty"`
+	Length int      `yaml:",omitempty"`
+	Help   string   `yaml:",omitempty"`
+	Values []string `yaml:",omitempty"`
 }
 
 //NewTypeExtraOptions ...

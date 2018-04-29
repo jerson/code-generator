@@ -2,10 +2,10 @@ package models
 
 // SchemaConfig ...
 type SchemaConfig struct {
-	Name                         string            `json:",omitempty"`
-	MaxIdentifierLength          int               `json:",omitempty"`
-	HasExplicitForeignKeyIndexes bool              `json:",omitempty"`
-	DefaultTableOptions          map[string]string `json:",omitempty"`
+	Name                         string            `yaml:",omitempty"`
+	MaxIdentifierLength          int               `yaml:",omitempty"`
+	HasExplicitForeignKeyIndexes bool              `yaml:",omitempty"`
+	DefaultTableOptions          map[string]string `yaml:",omitempty"`
 }
 
 //NewSchemaConfig ...

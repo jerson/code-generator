@@ -2,8 +2,9 @@ package models
 
 // View ...
 type View struct {
-	Base
-	SQL string `json:",omitempty"`
+	Name      string `yaml:",omitempty"`
+	Namespace string `yaml:",omitempty"`
+	SQL       string `yaml:",omitempty"`
 }
 
 //NewView ...

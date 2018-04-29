@@ -2,18 +2,19 @@ package models
 
 // ForeignKey ...
 type ForeignKey struct {
-	Base
-	LocalTable         string            `json:",omitempty"`
-	LocalColumnName    []Identifier      `json:",omitempty"`
-	ForeignTableName   Identifier        `json:",omitempty"`
-	ForeignColumnNames []Identifier      `json:",omitempty"`
-	Options            ForeignKeyOptions `json:",omitempty"`
+	Name               string            `yaml:",omitempty"`
+	Namespace          string            `yaml:",omitempty"`
+	LocalTable         string            `yaml:",omitempty"`
+	LocalColumnName    []Identifier      `yaml:",omitempty"`
+	ForeignTableName   Identifier        `yaml:",omitempty"`
+	ForeignColumnNames []Identifier      `yaml:",omitempty"`
+	Options            ForeignKeyOptions `yaml:",omitempty"`
 }
 
 // ForeignKeyOptions ...
 type ForeignKeyOptions struct {
-	OnUpdate string `json:",omitempty"`
-	OnDelete string `json:",omitempty"`
+	OnUpdate string `yaml:",omitempty"`
+	OnDelete string `yaml:",omitempty"`
 }
 
 //NewForeignKey ...

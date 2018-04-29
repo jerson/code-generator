@@ -7,27 +7,28 @@ import (
 
 // Column ...
 type Column struct {
-	Base
-	SpecialType     *Type             `json:",omitempty"`
-	Type            types.Value       `json:",omitempty"`
-	Length          int               `json:",omitempty"`
-	Precision       int               `json:",omitempty"`
-	Scale           int               `json:",omitempty"`
-	Unsigned        bool              `json:",omitempty"`
-	Fixed           bool              `json:",omitempty"`
-	NotNull         bool              `json:",omitempty"`
-	Default         string            `json:",omitempty"`
-	AutoIncrement   bool              `json:",omitempty"`
-	Key             keys.Value        `json:",omitempty"`
-	PlatformOptions PlatformOptions   `json:",omitempty"`
-	Comment         string            `json:",omitempty"`
-	SchemaOptions   map[string]string `json:",omitempty"`
+	Name            string            `yaml:",omitempty"`
+	Namespace       string            `yaml:",omitempty"`
+	SpecialType     *Type             `yaml:",omitempty"`
+	Type            types.Value       `yaml:",omitempty"`
+	Length          int               `yaml:",omitempty"`
+	Precision       int               `yaml:",omitempty"`
+	Scale           int               `yaml:",omitempty"`
+	Unsigned        bool              `yaml:",omitempty"`
+	Fixed           bool              `yaml:",omitempty"`
+	NotNull         bool              `yaml:",omitempty"`
+	Default         string            `yaml:",omitempty"`
+	AutoIncrement   bool              `yaml:",omitempty"`
+	Key             keys.Value        `yaml:",omitempty"`
+	PlatformOptions PlatformOptions   `yaml:",omitempty"`
+	Comment         string            `yaml:",omitempty"`
+	SchemaOptions   map[string]string `yaml:",omitempty"`
 }
 
 // PlatformOptions ...
 type PlatformOptions struct {
-	Collation    string `json:",omitempty"`
-	CharacterSet string `json:",omitempty"`
+	Collation    string `yaml:",omitempty"`
+	CharacterSet string `yaml:",omitempty"`
 }
 
 //NewColumn ...

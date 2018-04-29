@@ -2,11 +2,12 @@ package models
 
 // Index ...
 type Index struct {
-	Base      `json:",omitempty"`
-	Columns   []Identifier `json:",omitempty"`
-	IsUnique  bool         `json:",omitempty"`
-	IsPrimary bool         `json:",omitempty"`
-	Flags     []string     `json:",omitempty"`
+	Name      string       `yaml:",omitempty"`
+	Namespace string       `yaml:",omitempty"`
+	Columns   []Identifier `yaml:",omitempty"`
+	IsUnique  bool         `yaml:",omitempty"`
+	IsPrimary bool         `yaml:",omitempty"`
+	Flags     []string     `yaml:",omitempty"`
 	//Options   map[string]string
 }
 

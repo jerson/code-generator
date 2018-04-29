@@ -2,14 +2,15 @@ package models
 
 // Table ...
 type Table struct {
-	Base
-	PrimaryKeyName bool     `json:",omitempty"`
-	Columns        []Column `json:",omitempty"`
-	//ImplicitIndexes []Index `json:",omitempty"`
-	Indexes    []Index           `json:",omitempty"`
-	ForeignKey []ForeignKey      `json:",omitempty"`
-	Options    map[string]string `json:",omitempty"`
-	Config     SchemaConfig      `json:",omitempty"`
+	Name           string   `yaml:",omitempty"`
+	Namespace      string   `yaml:",omitempty"`
+	PrimaryKeyName bool     `yaml:",omitempty"`
+	Columns        []Column `yaml:",omitempty"`
+	//ImplicitIndexes []Index `yaml:",omitempty"`
+	Indexes    []Index           `yaml:",omitempty"`
+	ForeignKey []ForeignKey      `yaml:",omitempty"`
+	Options    map[string]string `yaml:",omitempty"`
+	Config     SchemaConfig      `yaml:",omitempty"`
 }
 
 //NewTable ...

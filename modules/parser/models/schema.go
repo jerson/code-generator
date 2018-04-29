@@ -2,12 +2,13 @@ package models
 
 // Schema ...
 type Schema struct {
-	Base
-	Config     SchemaConfig `json:",omitempty"`
-	Views      []View       `json:",omitempty"`
-	Tables     []Table      `json:",omitempty"`
-	Sequences  []Sequence   `json:",omitempty"`
-	Namespaces []string     `json:",omitempty"`
+	Name       string       `yaml:",omitempty"`
+	Namespace  string       `yaml:",omitempty"`
+	Config     SchemaConfig `yaml:",omitempty"`
+	Views      []View       `yaml:",omitempty"`
+	Tables     []Table      `yaml:",omitempty"`
+	Sequences  []Sequence   `yaml:",omitempty"`
+	Namespaces []string     `yaml:",omitempty"`
 }
 
 //NewSchema ...
