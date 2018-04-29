@@ -1,7 +1,9 @@
 package parser
 
 import (
+	"encoding/json"
 	"github.com/jerson/code-generator/modules/context"
+	"github.com/jerson/code-generator/modules/parser/keys"
 	"github.com/jerson/code-generator/modules/parser/models"
 	"github.com/jerson/code-generator/modules/parser/platforms/mysql"
 	"github.com/jerson/code-generator/modules/parser/types"
@@ -13,6 +15,7 @@ import (
 
 // MySQLManager ...
 type MySQLManager struct {
+	ctx              context.Base
 	platform         *mysql.Platform
 	regexType        *regexp.Regexp
 	regexSpecialType *regexp.Regexp
@@ -26,8 +29,8 @@ func NewMySQLManager(ctx context.Base, driver, source string) (*MySQLManager, er
 	}
 
 	regexType := regexp.MustCompile("^(?P<type>[A-Za-z0-9]+)(?P<length>\\([0-9A-Za-z\\'\\'\\,]+\\))?$")
-	regexSpecialType := regexp.MustCompile("^(?P<type>[A-Za-z0-9]+)(?P<length>\\([0-9A-Za-z\\'\\'\\,]+\\))?$")
-	return &MySQLManager{platform: platform, regexType: regexType, regexSpecialType: regexSpecialType}, nil
+	regexSpecialType := regexp.MustCompile("\\[type:(?P<type>[a-zA-Z0-9\\s]+)(, ?options:(?P<options>[\\w\\W}{]+))?]")
+	return &MySQLManager{ctx: ctx, platform: platform, regexType: regexType, regexSpecialType: regexSpecialType}, nil
 }
 
 //Schema ...
@@ -158,14 +161,25 @@ func (m MySQLManager) Columns(table string) ([]models.Column, error) {
 		if err != nil {
 			return nil, err
 		}
-		columnSpecialTYpe, err := m.parseSpecialType(result.Comment)
+		columnSpecialType, err := m.parseSpecialType(result.Comment)
 		if err != nil {
 			return nil, err
 		}
 
+		key := keys.Unknown
+
+		switch result.Key {
+		case "PRI":
+			key = keys.Primary
+			break
+		case "MUL":
+			key = keys.Multiple
+			break
+		}
+
 		items = append(items, models.Column{
 			Base:          models.Base{Name: result.Field},
-			SpecialType:   columnSpecialTYpe,
+			SpecialType:   columnSpecialType,
 			Type:          columnType.Value,
 			Length:        columnType.Length,
 			Precision:     columnType.Precision,
@@ -175,6 +189,7 @@ func (m MySQLManager) Columns(table string) ([]models.Column, error) {
 			NotNull:       result.Null != "YES",
 			Default:       result.Default,
 			AutoIncrement: strings.Contains(result.Extra, "auto_increment"),
+			Key:           key,
 			PlatformOptions: models.PlatformOptions{
 				Collation:    result.Collation,
 				CharacterSet: result.CharacterSet,
@@ -194,9 +209,9 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 	columnType := &models.Type{}
 	columnType.Name = typeData
 
-	typeString := results["type"]
+	typeString := strings.ToLower(results["type"])
 	lengthString := strings.Trim(strings.Trim(results["length"], ")"), "(")
-	if lengthString != "" {
+	if lengthString != "" && !strings.Contains(lengthString, ",") {
 		length, err := strconv.Atoi(lengthString)
 		if err != nil {
 			return nil, err
@@ -205,7 +220,10 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 	}
 
 	value := types.String
-	switch strings.ToLower(typeString) {
+	switch typeString {
+	case "enum":
+		value = types.String
+		break
 	case "tinyint":
 		if columnType.Length == 1 {
 			value = types.Boolean
@@ -247,7 +265,7 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 		value = types.Datetime
 		break
 	default:
-		value = types.Unknown
+		value = types.Value(typeString)
 		break
 	}
 	columnType.Value = value
@@ -258,31 +276,46 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 //parseSpecialType ...
 func (m MySQLManager) parseSpecialType(comment string) (*models.Type, error) {
 
+	log := m.ctx.GetLogger("parseSpecialType")
 	results := util.GetRegexParams(m.regexSpecialType, comment)
-
 	columnType := &models.Type{}
 
-	typeString := results["type"]
-	lengthString := strings.Trim(strings.Trim(results["length"], ")"), "(")
-	if lengthString != "" {
-		length, err := strconv.Atoi(lengthString)
+	typeString := strings.ToLower(results["type"])
+	optionsString := strings.TrimSpace(results["options"])
+
+	if typeString == "" {
+		return nil, nil
+	}
+
+	if optionsString != "" {
+		var options *models.TypeExtraOptions
+		err := json.Unmarshal([]byte(optionsString), &options)
 		if err != nil {
-			return nil, err
+			log.Warn(err)
 		}
-		columnType.Length = length
+
+		if options != nil {
+			columnType.Options = options
+			columnType.Length = options.Length
+		}
 	}
 
 	value := types.String
-	switch strings.ToLower(typeString) {
-	case "tinyint":
-		if columnType.Length == 1 {
-			value = types.Boolean
-		} else {
-			value = types.SmallInt
-		}
+	switch typeString {
+	case "email":
+		value = types.SpecialEmail
+		break
+	case "password":
+		value = types.SpecialPassword
+		break
+	case "url":
+		value = types.SpecialURL
+		break
+	case "html":
+		value = types.SpecialHTML
 		break
 	default:
-		value = types.Unknown
+		value = types.Value(typeString)
 		break
 	}
 	columnType.Value = value
@@ -298,28 +331,32 @@ func (m MySQLManager) Indexes(table string) ([]models.Index, error) {
 		return nil, err
 	}
 
-	var items []models.Index
-	for _, result := range results {
+	list := map[string]*models.Index{}
 
-		var flags []string
+	for _, value := range results {
 
-		if result.IndexType == "FULLTEXT" {
-			flags = append(flags, "FULLTEXT")
-		} else if result.IndexType == "SPATIAL" {
-			flags = append(flags, "SPATIAL")
+		if list[value.KeyName] == nil {
+			var flags []string
+
+			if value.IndexType == "FULLTEXT" {
+				flags = append(flags, "FULLTEXT")
+			} else if value.IndexType == "SPATIAL" {
+				flags = append(flags, "SPATIAL")
+			}
+
+			list[value.KeyName] = &models.Index{
+				Base:      models.Base{Name: value.KeyName},
+				IsUnique:  value.NonUnique == "0",
+				IsPrimary: value.KeyName == "PRIMARY",
+				Flags:     flags,
+			}
 		}
+		list[value.KeyName].Columns = append(list[value.KeyName].Columns, models.Identifier{Base: models.Base{Name: value.ColumnName}})
 
-		var columns []models.Identifier
-		identifier := models.Identifier{Base: models.Base{Name: result.ColumnName}}
-		columns = append(columns, identifier)
-
-		items = append(items, models.Index{
-			Base:      models.Base{Name: result.KeyName},
-			Columns:   columns,
-			IsUnique:  result.NonUnique == "0",
-			IsPrimary: result.KeyName == "PRIMARY",
-			Flags:     flags,
-		})
+	}
+	var items []models.Index
+	for _, result := range list {
+		items = append(items, *result)
 	}
 
 	return items, nil
@@ -333,7 +370,7 @@ func (m MySQLManager) ForeignKeys(table string) ([]models.ForeignKey, error) {
 		return nil, err
 	}
 
-	list := map[string]*foreignKeyTemp{}
+	list := map[string]*models.ForeignKey{}
 
 	for _, value := range results {
 
@@ -344,50 +381,30 @@ func (m MySQLManager) ForeignKeys(table string) ([]models.ForeignKey, error) {
 			if value.UpdateRule == "RESTRICT" {
 				value.UpdateRule = ""
 			}
-			list[value.ConstraintName] = &foreignKeyTemp{
-				Name:         value.ConstraintName,
-				Local:        []models.Identifier{},
-				Foreign:      []models.Identifier{},
-				ForeignTable: value.ReferencedTableName,
-				OnDelete:     value.DeleteRule,
-				OnUpdate:     value.UpdateRule,
+			list[value.ConstraintName] = &models.ForeignKey{
+				Base:               models.Base{Name: value.ConstraintName},
+				LocalTable:         table,
+				LocalColumnName:    []models.Identifier{},
+				ForeignColumnNames: []models.Identifier{},
+				ForeignTableName: models.Identifier{
+					Base: models.Base{Name: value.ReferencedTableName},
+				},
+				Options: models.ForeignKeyOptions{
+					OnUpdate: value.UpdateRule,
+					OnDelete: value.DeleteRule,
+				},
 			}
 		}
-		if list[value.ConstraintName] != nil {
-			list[value.ConstraintName].Local = append(list[value.ConstraintName].Local, models.Identifier{Base: models.Base{Name: value.ColumnName}})
-			list[value.ConstraintName].Foreign = append(list[value.ConstraintName].Foreign, models.Identifier{Base: models.Base{Name: value.ReferencedColumnName}})
-		}
+		list[value.ConstraintName].LocalColumnName = append(list[value.ConstraintName].LocalColumnName, models.Identifier{Base: models.Base{Name: value.ColumnName}})
+		list[value.ConstraintName].ForeignColumnNames = append(list[value.ConstraintName].ForeignColumnNames, models.Identifier{Base: models.Base{Name: value.ReferencedColumnName}})
 
 	}
 
 	var items []models.ForeignKey
 
 	for _, result := range list {
-
-		items = append(items, models.ForeignKey{
-			Base:               models.Base{Name: result.Name},
-			LocalTable:         table,
-			LocalColumnName:    result.Local,
-			ForeignColumnNames: result.Foreign,
-			ForeignTableName: models.Identifier{
-				Base: models.Base{Name: result.ForeignTable},
-			},
-			Options: models.ForeignKeyOptions{
-				OnUpdate: result.OnUpdate,
-				OnDelete: result.OnDelete,
-			},
-		})
-
+		items = append(items, *result)
 	}
 
 	return items, nil
-}
-
-type foreignKeyTemp struct {
-	Name         string
-	ForeignTable string
-	Local        []models.Identifier
-	Foreign      []models.Identifier
-	OnDelete     string
-	OnUpdate     string
 }

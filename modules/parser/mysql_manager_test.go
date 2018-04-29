@@ -11,7 +11,7 @@ func TestNewMySQLManager(t *testing.T) {
 	ctx := context.NewSingle("test")
 	defer ctx.Close()
 
-	parser, err := NewMySQLManager(ctx, "mysql", "root:123456@/movie_app")
+	parser, err := NewMySQLManager(ctx, "mysql", "root:123456@/setbeat")
 	if err != nil {
 		t.Fatal(err)
 	}

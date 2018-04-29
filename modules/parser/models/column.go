@@ -1,6 +1,9 @@
 package models
 
-import "github.com/jerson/code-generator/modules/parser/types"
+import (
+	"github.com/jerson/code-generator/modules/parser/keys"
+	"github.com/jerson/code-generator/modules/parser/types"
+)
 
 // Column ...
 type Column struct {
@@ -15,6 +18,7 @@ type Column struct {
 	NotNull         bool              `json:",omitempty"`
 	Default         string            `json:",omitempty"`
 	AutoIncrement   bool              `json:",omitempty"`
+	Key             keys.Value        `json:",omitempty"`
 	PlatformOptions PlatformOptions   `json:",omitempty"`
 	Comment         string            `json:",omitempty"`
 	SchemaOptions   map[string]string `json:",omitempty"`
