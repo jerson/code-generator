@@ -223,6 +223,7 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 	switch typeString {
 	case "enum":
 		value = types.String
+		columnType.Options = &models.TypeExtraOptions{Values: strings.Split(lengthString, ",")}
 		break
 	case "tinyint":
 		if columnType.Length == 1 {

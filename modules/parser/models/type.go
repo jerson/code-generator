@@ -20,8 +20,9 @@ func NewType() Type {
 
 // TypeExtraOptions ...
 type TypeExtraOptions struct {
-	Length int    `json:",omitempty"`
-	Help   string `json:",omitempty"`
+	Length int      `json:",omitempty"`
+	Help   string   `json:",omitempty"`
+	Values []string `json:",omitempty"`
 }
 
 //NewTypeExtraOptions ...
