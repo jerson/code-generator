@@ -15,3 +15,12 @@ type Index struct {
 func NewIndex() Index {
 	return Index{}
 }
+
+//ColumnsNames ...
+func (i Index) ColumnsNames() []string {
+	var names []string
+	for _, column := range i.Columns {
+		names = append(names, column.Name)
+	}
+	return names
+}
