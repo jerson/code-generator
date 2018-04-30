@@ -2,9 +2,8 @@ package parser
 
 import (
 	"github.com/jerson/code-generator/modules/context"
+	"github.com/jerson/code-generator/modules/parser/dump"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"gopkg.in/yaml.v2"
-	"os"
 	"testing"
 )
 
@@ -22,8 +21,8 @@ func TestNewMySQLManager(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	yaml.NewEncoder(os.Stdout).Encode(schema)
+	data, _ := dump.NewMySQLDump(ctx, *schema).Dump()
 	//data, _ := json.MarshalIndent(schema, "", " ")
-	//t.Log(string(data))
+	t.Log(data)
 
 }
