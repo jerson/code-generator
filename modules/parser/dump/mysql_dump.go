@@ -66,37 +66,56 @@ func (m MySQLDump) Index(index models.Index, table models.Table) string {
 func (m MySQLDump) Type(column models.Column) string {
 	columnType := "TEXT"
 	useLength := false
+
 	switch column.Type {
-	case types.String:
-	case types.Array:
+	case types.Unknown:
+		columnType = "TEXT"
+	case types.String, types.Array:
 		useLength = true
 		columnType = "VARCHAR"
-		break
+	case types.JSON:
+		columnType = "JSON"
 	case types.Integer:
 		useLength = true
 		columnType = "INT"
-		break
 	case types.BigInt:
 		useLength = true
 		columnType = "BIGINT"
-		break
 	case types.SmallInt:
+		columnType = "TINYINT"
 	case types.Boolean:
 		useLength = true
 		columnType = "TINYINT"
-		break
 	case types.Datetime:
-		useLength = false
 		columnType = "DATETIME"
-		break
 	case types.Timestamp:
-		useLength = false
 		columnType = "TIMESTAMP"
-		break
+	case types.Date:
+		columnType = "DATE"
+	case types.Time:
+		columnType = "TIME"
+	case types.Year:
+		columnType = "YEAR"
+	case types.Decimal:
+		columnType = "DECIMAL"
+	case types.Binary:
+		columnType = "BINARY"
+	case types.Blob:
+		columnType = "BLOB"
+	case types.Float:
+		columnType = "FLOAT"
 	case types.Text:
-		useLength = false
 		columnType = "TEXT"
-		break
+
+		if column.Length > 0 && column.Length <= 255 {
+			columnType = "TINYTEXT"
+		} else if column.Length > 255 && column.Length <= 65535 {
+			columnType = "TEXT"
+		} else if column.Length > 65535 && column.Length <= 16777215 {
+			columnType = "MEDIUMTEXT"
+		} else if column.Length > 16777215 {
+			columnType = "LONGTEXT"
+		}
 
 	}
 	length := ""

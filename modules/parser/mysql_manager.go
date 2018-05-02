@@ -209,7 +209,7 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 	columnType := &models.Type{}
 	columnType.Name = typeData
 
-	typeString := strings.ToLower(results["type"])
+	typeString := strings.ToLower(strings.TrimSpace(results["type"]))
 	lengthString := strings.Trim(strings.Trim(results["length"], ")"), "(")
 	if lengthString != "" && !strings.Contains(lengthString, ",") {
 		length, err := strconv.Atoi(lengthString)
@@ -219,62 +219,54 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 		columnType.Length = length
 	}
 
-	value := types.String
+	value := types.Unknown
+
 	switch typeString {
-	case "enum":
-		value = types.String
-		columnType.Options = &models.TypeExtraOptions{Values: strings.Split(lengthString, ",")}
-		break
+	case "int", "smallint", "mediumint":
+		value = types.Integer
 	case "tinyint":
 		if columnType.Length == 1 {
 			value = types.Boolean
 		} else {
 			value = types.SmallInt
 		}
-		break
 	case "bigint":
 		value = types.BigInt
-		break
-	case "int":
-		value = types.Integer
-		break
+	case "decimal":
+		value = types.Decimal
+	case "double", "float", "real":
+		value = types.Float
+	case "boolean", "bit", "serial":
+		value = types.Boolean
+	case "date":
+		value = types.Date
+	case "datetime":
+		value = types.Datetime
+	case "time":
+		value = types.Time
+	case "year":
+		value = types.Year
+	case "timestamp":
+		value = types.Datetime
 	case "char":
 		columnType.Fixed = true
 		value = types.String
-		break
 	case "varchar":
 		value = types.String
-		break
-	case "blob":
-		columnType.Fixed = true
-		value = types.Blob
-		break
-	case "double":
-	case "float":
-	case "real":
-		value = types.Float
-		break
-	case "text":
+	case "tinytext", "text", "mediumtext", "longtext":
 		value = types.Text
-		break
-	case "bool":
-		value = types.Boolean
-		break
-	case "date":
-		value = types.Date
-		break
-	case "datetime":
-		value = types.Datetime
-		break
-	case "time":
-		value = types.Time
-		break
-	case "timestamp":
-		value = types.Datetime
-		break
-	default:
-		value = types.Value(typeString)
-		break
+	case "binary":
+		columnType.Fixed = true
+		value = types.Binary
+	case "varbinary":
+		value = types.Binary
+	case "tinyblob", "mediumblob", "blob", "longblob":
+		value = types.Blob
+	case "enum":
+		value = types.String
+		columnType.Options = &models.TypeExtraOptions{Values: strings.Split(lengthString, ",")}
+	case "json":
+		value = types.JSON
 	}
 	columnType.Value = value
 
