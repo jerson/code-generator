@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jerson/code-generator/modules/context"
 	"github.com/jerson/code-generator/modules/parser/models"
+	"github.com/jerson/code-generator/modules/parser/types"
 	"strings"
 )
 
@@ -61,9 +62,54 @@ func (m MySQLDump) Index(index models.Index, table models.Table) string {
 	return fmt.Sprintf(`CREATE INDEX %s ON %s (%s);`, index.Name, table.Name, strings.Join(index.ColumnsNames(), ","))
 }
 
+//Type ...
+func (m MySQLDump) Type(column models.Column) string {
+	columnType := "TEXT"
+	useLength := false
+	switch column.Type {
+	case types.String:
+	case types.Array:
+		useLength = true
+		columnType = "VARCHAR"
+		break
+	case types.Integer:
+		useLength = true
+		columnType = "INT"
+		break
+	case types.BigInt:
+		useLength = true
+		columnType = "BIGINT"
+		break
+	case types.SmallInt:
+	case types.Boolean:
+		useLength = true
+		columnType = "TINYINT"
+		break
+	case types.Datetime:
+		useLength = false
+		columnType = "DATETIME"
+		break
+	case types.Timestamp:
+		useLength = false
+		columnType = "TIMESTAMP"
+		break
+	case types.Text:
+		useLength = false
+		columnType = "TEXT"
+		break
+
+	}
+	length := ""
+	if useLength {
+		length = fmt.Sprintf("(%d)", column.Length)
+	}
+
+	return fmt.Sprintf(`%s%s`, columnType, length)
+}
+
 //Column ...
 func (m MySQLDump) Column(column models.Column) string {
-	return fmt.Sprintf(`%s %s`, column.Name, column.Type)
+	return fmt.Sprintf(`%s %s`, column.Name, m.Type(column))
 }
 
 //Table ...
