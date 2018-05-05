@@ -247,7 +247,7 @@ func (m MySQLManager) parseType(typeData string) (*models.Type, error) {
 	case "year":
 		value = types.Year
 	case "timestamp":
-		value = types.Datetime
+		value = types.Timestamp
 	case "char":
 		columnType.Fixed = true
 		value = types.String

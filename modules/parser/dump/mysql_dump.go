@@ -29,10 +29,18 @@ func (m MySQLDump) Dump() (string, error) {
 	for _, table := range m.schema.Tables {
 		sb.WriteString(m.Table(table))
 		sb.WriteRune('\n')
-		for _, index := range table.Indexes {
-			sb.WriteString(fmt.Sprintf(`# index: %s`, index.Name))
+
+		for _, foreignKey := range table.ForeignKey {
+			sb.WriteString(m.ForeignKey(foreignKey))
 			sb.WriteRune('\n')
 		}
+		sb.WriteRune('\n')
+
+		for _, index := range table.Indexes {
+			sb.WriteString(m.Index(index, table))
+			sb.WriteRune('\n')
+		}
+		sb.WriteRune('\n')
 	}
 	for _, view := range m.schema.Views {
 		sb.WriteString(m.View(view))
@@ -50,16 +58,6 @@ func (m MySQLDump) Quoted(name string) string {
 //View ...
 func (m MySQLDump) View(view models.View) string {
 	return fmt.Sprintf(`CREATE VIEW %s AS %s`, view.Name, view.SQL)
-}
-
-//ForeignKey ...
-func (m MySQLDump) ForeignKey(key models.ForeignKey) string {
-	return fmt.Sprintf(`FOREIGN KEY (%s) REFERENCES %s (%s)`, key.LocalTable, key.Namespace)
-}
-
-//Index ...
-func (m MySQLDump) Index(index models.Index, table models.Table) string {
-	return fmt.Sprintf(`CREATE INDEX %s ON %s (%s);`, index.Name, table.Name, strings.Join(index.ColumnsNames(), ","))
 }
 
 //Type ...
@@ -126,36 +124,72 @@ func (m MySQLDump) Type(column models.Column) string {
 	return fmt.Sprintf(`%s%s`, columnType, length)
 }
 
+//ForeignKey ...
+func (m MySQLDump) ForeignKey(key models.ForeignKey) string {
+	return fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s (%s)`, key.LocalTable, key.Name, strings.Join(key.LocalColumns(), ","), key.ForeignTableName.Name, strings.Join(key.ForeignColumns(), ","))
+}
+
+//Index ...
+func (m MySQLDump) Index(index models.Index, table models.Table) string {
+
+	if index.IsPrimary {
+		return fmt.Sprintf(`ALTER TABLE %s ADD PRIMARY KEY (%s);`, table.Name, strings.Join(index.ColumnsNames(), ","))
+	} else if index.IsUnique {
+		return fmt.Sprintf(`ALTER TABLE %s ADD UNIQUE (%s);`, table.Name, strings.Join(index.ColumnsNames(), ","))
+	} else {
+		return fmt.Sprintf(`CREATE INDEX %s ON %s (%s);`, index.Name, table.Name, strings.Join(index.ColumnsNames(), ","))
+	}
+}
+
+//ColumnOptions ...
+func (m MySQLDump) ColumnOptions(column models.Column) string {
+	var options []string
+
+	if column.AutoIncrement {
+		options = append(options, "AUTO_INCREMENT")
+	}
+	if column.Default != "" {
+		options = append(options, fmt.Sprintf("DEFAULT `%s`", column.Default))
+	}
+	if column.Comment != "" {
+		options = append(options, fmt.Sprintf("COMMENT `%s`", column.Comment))
+	}
+	if column.NotNull {
+		options = append(options, "NOT NULL")
+	} else {
+		options = append(options, "NULL")
+
+	}
+	return strings.Join(options, " ")
+}
+
 //Column ...
 func (m MySQLDump) Column(column models.Column) string {
-	return fmt.Sprintf(`%s %s`, column.Name, m.Type(column))
+	var options []string
+
+	options = []string{
+		column.Name,
+		m.Type(column),
+		m.ColumnOptions(column),
+	}
+
+	return strings.Join(options, " ")
 }
 
 //Table ...
 func (m MySQLDump) Table(table models.Table) string {
 
 	var columns []string
-	var indexes []string
-
 	for _, column := range table.Columns {
 		columns = append(columns, m.Column(column))
-	}
-	for _, foreignKey := range table.ForeignKey {
-		columns = append(columns, m.ForeignKey(foreignKey))
-	}
-	for _, index := range table.Indexes {
-		indexes = append(indexes, m.Index(index, table))
 	}
 
 	return fmt.Sprintf(`CREATE TABLE %s 
 (
 %s
 );
-
-%s
 `,
 		table.Name,
 		strings.Join(columns, ",\n"),
-		strings.Join(indexes, "\n"),
 	)
 }

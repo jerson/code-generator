@@ -26,3 +26,21 @@ func NewForeignKey() ForeignKey {
 func NewForeignKeyOptions() ForeignKeyOptions {
 	return ForeignKeyOptions{}
 }
+
+//ForeignColumns ...
+func (f ForeignKey) ForeignColumns() []string {
+	var names []string
+	for _, column := range f.ForeignColumnNames {
+		names = append(names, column.Name)
+	}
+	return names
+}
+
+//LocalColumns ...
+func (f ForeignKey) LocalColumns() []string {
+	var names []string
+	for _, column := range f.LocalColumnName {
+		names = append(names, column.Name)
+	}
+	return names
+}
