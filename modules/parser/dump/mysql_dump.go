@@ -126,7 +126,7 @@ func (m MySQLDump) Type(column models.Column) string {
 
 //ForeignKey ...
 func (m MySQLDump) ForeignKey(key models.ForeignKey) string {
-	return fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s (%s)`, key.LocalTable, key.Name, strings.Join(key.LocalColumns(), ","), key.ForeignTableName.Name, strings.Join(key.ForeignColumns(), ","))
+	return fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s (%s);`, key.LocalTable, key.Name, strings.Join(key.LocalColumns(), ","), key.ForeignTableName.Name, strings.Join(key.ForeignColumns(), ","))
 }
 
 //Index ...
@@ -149,10 +149,10 @@ func (m MySQLDump) ColumnOptions(column models.Column) string {
 		options = append(options, "AUTO_INCREMENT")
 	}
 	if column.Default != "" {
-		options = append(options, fmt.Sprintf("DEFAULT `%s`", column.Default))
+		options = append(options, fmt.Sprintf("DEFAULT '%s'", column.Default))
 	}
 	if column.Comment != "" {
-		options = append(options, fmt.Sprintf("COMMENT `%s`", column.Comment))
+		options = append(options, fmt.Sprintf("COMMENT '%s'", column.Comment))
 	}
 	if column.NotNull {
 		options = append(options, "NOT NULL")
