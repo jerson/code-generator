@@ -6,19 +6,19 @@ import (
 	"github.com/jerson/code-generator/modules/parser/models"
 )
 
-// JSONDump ...
-type JSONDump struct {
+// JSON ...
+type JSON struct {
 	ctx    context.Base
 	schema models.Schema
 }
 
-// NewJSONDump ...
-func NewJSONDump(ctx context.Base, schema models.Schema) JSONDump {
-	return JSONDump{ctx: ctx, schema: schema}
+// NewJSON ...
+func NewJSON(ctx context.Base, schema models.Schema) JSON {
+	return JSON{ctx: ctx, schema: schema}
 }
 
 //Dump ...
-func (y JSONDump) Dump() (string, error) {
+func (y JSON) Dump() (string, error) {
 	data, err := json.Marshal(y.schema)
 	if err != nil {
 		return "", err

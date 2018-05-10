@@ -2,7 +2,7 @@ package parser
 
 import (
 	"github.com/jerson/code-generator/modules/context"
-	"github.com/jerson/code-generator/modules/parser/dump"
+	"github.com/jerson/code-generator/modules/dump"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"testing"
 )
@@ -21,7 +21,7 @@ func TestNewMySQLManager(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	data, _ := dump.NewMySQLDump(ctx, *schema).Dump()
+	data, _ := dump.NewMySQL(ctx, *schema, dump.MySQLOptions{WithDrop: true, Alter: true}).Dump()
 	//data, _ := json.MarshalIndent(schema, "", " ")
 	t.Log(data)
 

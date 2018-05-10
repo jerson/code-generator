@@ -8,19 +8,26 @@ import (
 	"strings"
 )
 
-// MySQLDump ...
-type MySQLDump struct {
-	ctx    context.Base
-	schema models.Schema
+// MySQL ...
+type MySQL struct {
+	ctx     context.Base
+	schema  models.Schema
+	options MySQLOptions
 }
 
-// NewMySQLDump ...
-func NewMySQLDump(ctx context.Base, schema models.Schema) MySQLDump {
-	return MySQLDump{ctx: ctx, schema: schema}
+// MySQLOptions ...
+type MySQLOptions struct {
+	WithDrop bool
+	Alter    bool
+}
+
+// NewMySQL ...
+func NewMySQL(ctx context.Base, schema models.Schema, options MySQLOptions) MySQL {
+	return MySQL{ctx: ctx, schema: schema, options: options}
 }
 
 //Dump ...
-func (m MySQLDump) Dump() (string, error) {
+func (m MySQL) Dump() (string, error) {
 
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf(`-- database: %s`, m.schema.Name))
@@ -51,17 +58,17 @@ func (m MySQLDump) Dump() (string, error) {
 }
 
 //Quoted ...
-func (m MySQLDump) Quoted(name string) string {
+func (m MySQL) Quoted(name string) string {
 	return fmt.Sprintf("´%s´", name)
 }
 
 //View ...
-func (m MySQLDump) View(view models.View) string {
+func (m MySQL) View(view models.View) string {
 	return fmt.Sprintf(`CREATE VIEW %s AS %s`, view.Name, view.SQL)
 }
 
 //Type ...
-func (m MySQLDump) Type(column models.Column) string {
+func (m MySQL) Type(column models.Column) string {
 	columnType := "TEXT"
 	useLength := false
 
@@ -125,12 +132,12 @@ func (m MySQLDump) Type(column models.Column) string {
 }
 
 //ForeignKey ...
-func (m MySQLDump) ForeignKey(key models.ForeignKey) string {
+func (m MySQL) ForeignKey(key models.ForeignKey) string {
 	return fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s (%s);`, key.LocalTable, key.Name, strings.Join(key.LocalColumns(), ","), key.ForeignTableName.Name, strings.Join(key.ForeignColumns(), ","))
 }
 
 //Index ...
-func (m MySQLDump) Index(index models.Index, table models.Table) string {
+func (m MySQL) Index(index models.Index, table models.Table) string {
 
 	if index.IsPrimary {
 		return fmt.Sprintf(`ALTER TABLE %s ADD PRIMARY KEY (%s);`, table.Name, strings.Join(index.ColumnsNames(), ","))
@@ -142,7 +149,7 @@ func (m MySQLDump) Index(index models.Index, table models.Table) string {
 }
 
 //ColumnOptions ...
-func (m MySQLDump) ColumnOptions(column models.Column) string {
+func (m MySQL) ColumnOptions(column models.Column) string {
 	var options []string
 
 	if column.AutoIncrement {
@@ -164,7 +171,7 @@ func (m MySQLDump) ColumnOptions(column models.Column) string {
 }
 
 //Column ...
-func (m MySQLDump) Column(column models.Column) string {
+func (m MySQL) Column(column models.Column) string {
 	var options []string
 
 	options = []string{
@@ -177,7 +184,7 @@ func (m MySQLDump) Column(column models.Column) string {
 }
 
 //Table ...
-func (m MySQLDump) Table(table models.Table) string {
+func (m MySQL) Table(table models.Table) string {
 
 	var columns []string
 	for _, column := range table.Columns {

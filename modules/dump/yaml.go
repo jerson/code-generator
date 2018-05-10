@@ -6,19 +6,19 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// YamlDump ...
-type YamlDump struct {
+// Yaml ...
+type Yaml struct {
 	ctx    context.Base
 	schema models.Schema
 }
 
-// NewYamlDump ...
-func NewYamlDump(ctx context.Base, schema models.Schema) YamlDump {
-	return YamlDump{ctx: ctx, schema: schema}
+// NewYaml ...
+func NewYaml(ctx context.Base, schema models.Schema) Yaml {
+	return Yaml{ctx: ctx, schema: schema}
 }
 
 //Dump ...
-func (y YamlDump) Dump() (string, error) {
+func (y Yaml) Dump() (string, error) {
 	data, err := yaml.Marshal(y.schema)
 	if err != nil {
 		return "", err
